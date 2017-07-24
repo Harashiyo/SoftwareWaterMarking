@@ -1,5 +1,5 @@
 # Software Water Marking
-##Algorithm List
+## Algorithm List
 * GC algorithm
 * QP algorithm
 * QPS algorithm
