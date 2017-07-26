@@ -2,6 +2,7 @@
 u"""Software Water Marking.
 
 """
+import sys
 
 
 class Graph:
@@ -45,9 +46,36 @@ def check_color(graph, color, num):
     return True
 
 
+def qp(graph, message):
+    u"""QP Algorithm.
+    """
+    g = Graph(graph.num, graph.edge)
+    message_count = 0
+    for i in range(g.num):
+        node_count = 0
+        nodes = []
+        for j in range(i + 1, g.num + i):
+            if [min(i, j % g.num), max(i, j % g.num)] not in g.edge:
+                nodes.append(j % g.num)
+                node_count += 1
+                if node_count == 2:
+                    break
+        if(node_count == 2):
+            g.edge.append([min(nodes[message[message_count]], i),
+                           max(nodes[message[message_count]], i)])
+            message_count += 1
+            if message_count == 3:
+                break
+    if message_count != 3:
+        sys.exit()
+    g.edge.sort()
+    return gc(g)
+
+
 if __name__ == '__main__':
-    e = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [1, 2], [1, 3],
-         [1, 4], [1, 5], [1, 6], [2, 3], [2, 4], [2, 5], [2, 6], [5, 6]]
-    g = Graph(7, e)
-    gra = gc(g)
+    e = [[0, 1], [0, 4], [1, 2], [3, 4]]
+    m = [1, 0, 1]
+    n = 5
+    g = Graph(n, e)
+    gra = qp(g, m)
     print(gra.vertex)
