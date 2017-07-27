@@ -64,18 +64,55 @@ def qp(graph, message):
             g.edge.append([min(nodes[message[message_count]], i),
                            max(nodes[message[message_count]], i)])
             message_count += 1
-            if message_count == 3:
+            if message_count == len(message):
                 break
-    if message_count != 3:
+    if message_count != len(message):
         sys.exit()
     g.edge.sort()
     return gc(g)
 
 
+def qps(graph, message):
+    u"""QPS Algorithm.
+    """
+    g = gc(Graph(graph.num, graph.edge))
+    color = max(g.vertex) + 1
+    flags = []
+    for i in range(g.num):
+        flags.append(False)
+    message_count = 0
+    for i in range(len(g.vertex) - 2):
+        if flags[i]:
+            continue
+        node_count = 0
+        nodes = []
+        for j in range(i + 1, len(g.vertex)):
+            if g.vertex[i] == g.vertex[j] and flags[j] is False:
+                nodes.append(j)
+                node_count += 1
+                if node_count == 2:
+                    break
+        if(node_count == 2):
+            g.vertex[nodes[message[message_count]]] = color
+            g.edge.append([i, nodes[message[message_count]]])
+            color += 1
+            message_count += 1
+            if message_count == len(message):
+                break
+            flags[i] = True
+            flags[nodes[0]] = True
+            flags[nodes[1]] = True
+    if message_count != len(message):
+        sys.exit()
+    g.edge.sort()
+    return g
+
+
 if __name__ == '__main__':
     e = [[0, 1], [0, 4], [1, 2], [3, 4]]
-    m = [1, 0, 1]
+    m = [1]
     n = 5
     g = Graph(n, e)
-    gra = qp(g, m)
+    gra = qps(g, m)
     print(gra.vertex)
+    print(gra.edge)
