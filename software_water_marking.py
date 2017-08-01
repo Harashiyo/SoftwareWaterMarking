@@ -129,6 +129,35 @@ def cc(graph, message):
     return g
 
 
+def improved_cc(graph, message):
+    u"""QPS Algorithm.
+    """
+    if len(graph.vertex) < len(message):
+        sys.exit()
+    else:
+        for i in range(len(message), len(graph.vertex)):
+            message.append(0)
+    g = gc(Graph(graph.num, graph.edge))
+    for i in range(len(message)):
+        if message[i] == 1:
+            color_min = max(g.vertex) + 1
+            colors = [g.vertex[i]]
+            for j in range(len(g.vertex)):
+                edge = [i, j]
+                edge.sort()
+                if g.vertex[j] < color_min and edge not in g.edge and g.vertex[j] not in colors:
+                    color_min = g.vertex[j]
+                else:
+                    colors.append(g.vertex[j])
+            for j in range(i + 1, len(g.vertex)):
+                edge = [i, j]
+                edge.sort()
+                if message[j] == 1 and g.vertex[j] < color_min and edge in g.edge:
+                    color_min = g.vertex[j]
+            g.vertex[i] = color_min
+    return g
+
+
 def check_color_extend(graph, color, num, N):
     u"""Determine whether vertices can be colored.
     """
@@ -145,6 +174,6 @@ if __name__ == '__main__':
     m = [1, 0, 1, 1, 0]
     n = 5
     g = Graph(n, e)
-    cc = cc(g, m)
+    cc = improved_cc(g, m)
     print(cc.vertex)
     print(cc.edge)
