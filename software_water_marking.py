@@ -21,6 +21,21 @@ class Graph:
         for i in range(self.num):
             self.vertex[i] = 0
 
+    def get_adjacent_nodes(self, num):
+        nodes = []
+        i = 0
+        while(self.edge[i][0] < num):
+            if self.edge[i][1] == num:
+                nodes.append(self.edge[i][0])
+            i += 1
+        if i < self.num:
+            while(self.edge[i][0] == num):
+                nodes.append(self.edge[i][1])
+                i += 1
+                if i == self.num:
+                    break
+        return nodes
+
 
 def gc(graph):
     u"""GC Algorithm.
@@ -112,25 +127,30 @@ def qps(graph, message):
 def cc(graph, message):
     u"""CC Algorithm.
     """
-    if len(graph.vertex) < len(message):
+    m = len(message)
+    if graph.num < m:
         sys.exit()
     g = gc(Graph(graph.num, graph.edge))
-    for i in range(len(message)):
+    for i in range(m, g.num):
+        message.append(0)
+    for i in range(g.num):
         if message[i] == 1:
-            color_min = max(g.vertex) + 1
-            colors = [g.vertex[i]]
-            for j in range(len(g.vertex)):
-                edge = [i, j]
-                edge.sort()
-                if g.vertex[j] < color_min and edge not in g.edge and g.vertex[j] not in colors:
-                    color_min = g.vertex[j]
-                else:
-                    colors.append(g.vertex[j])
-            g.vertex[i] = color_min
+            nodes = g.get_adjacent_nodes(i)
+            for j in range(1, max(g.vertex) + 2):
+                if j == g.vertex[i]:
+                    continue
+                flag = True
+                for k in range(len(nodes)):
+                    if j == g.vertex[nodes[k]]:
+                        flag = False
+                        break
+                if flag:
+                    g.vertex[i] = j
+                    break
     return g
 
 
-def improved_cc(graph, message):
+def icc(graph, message):
     u"""ICC Algorithm.
     """
     if len(graph.vertex) < len(message):
@@ -194,10 +214,14 @@ def cp(graph, message):
 
 
 if __name__ == '__main__':
-    e = [[0, 2], [0, 3], [0, 4], [1, 2], [1, 5], [2, 3], [2, 4], [3, 4], [4, 5]]
-    m = [1, 1, 0, 1]
-    n = 6
+    e = [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5],
+         [1, 2], [1, 3], [1, 4], [1, 5], [1, 6],
+         [1, 7], [1, 8], [1, 9], [2, 3], [3, 4],
+         [3, 5], [3, 6], [3, 7], [3, 8], [3, 9],
+         [4, 5], [5, 6], [5, 7], [5, 8], [5, 9],
+         [6, 7], [6, 8], [6, 9], [7, 8], [7, 9]]
+    m = [1, 0, 1, 0, 1, 1, 0, 1, 0, 0]
+    n = 10
     g = Graph(n, e)
-    cc = cp(g, m)
+    cc = cc(g, m)
     print(cc.vertex)
-    print(cc.edge)
