@@ -23,7 +23,7 @@ class Graph:
         for i in range(self.num):
             self.vertex[i] = 0
 
-    def get_adjacent_nodes(self, num):
+    def get_neighbor_nodes(self, num):
         nodes = []
         i = 0
         n = len(self.edge)
@@ -41,9 +41,9 @@ class Graph:
                     break
         return nodes
 
-    def get_not_adjacent_nodes(self, num):
+    def get_non_neighbor_nodes(self, num):
         nodes = []
-        n = self.get_adjacent_nodes(num)
+        n = self.get_neighbor_nodes(num)
         if len(n) == 0:
             for i in range(self.num):
                 if i == num:
@@ -62,9 +62,9 @@ class Graph:
                     nodes.append(i)
         return nodes
 
-    def get_adjacent_colors(self, num):
+    def get_neighbor_colors(self, num):
         colors = []
-        nodes = self.get_adjacent_nodes(num)
+        nodes = self.get_neighbor_nodes(num)
         for i in nodes:
             if self.vertex[i] not in colors:
                 colors.append(self.vertex[i])
@@ -80,10 +80,10 @@ def gc(graph):
     for i in range(g.num):
         if g.vertex[i] == 0:
             g.vertex[i] = color
-            nodes = g.get_not_adjacent_nodes(i)
+            nodes = g.get_non_neighbor_nodes(i)
             for j in nodes:
                 if j > i:
-                    colors = g.get_adjacent_colors(j)
+                    colors = g.get_neighbor_colors(j)
                     if color not in colors and g.vertex[j] == 0:
                         g.vertex[j] = color
             color += 1
@@ -94,26 +94,22 @@ def qp(graph, message):
     u"""QP Algorithm.
     """
     g = Graph(graph.num, graph.edge)
-    message_count = 0
-    for i in range(g.num):
-        node_count = 0
-        nodes = []
-        for j in range(i + 1, g.num + i):
-            if [min(i, j % g.num), max(i, j % g.num)] not in g.edge:
-                nodes.append(j % g.num)
-                node_count += 1
-                if node_count == 2:
-                    break
-        if(node_count == 2):
-            g.edge.append([min(nodes[message[message_count]], i),
-                           max(nodes[message[message_count]], i)])
-            message_count += 1
-            if message_count == len(message):
-                break
-    if message_count != len(message):
-        sys.exit()
-    g.edge.sort()
-    return gc(g)
+    i = 0
+    for j in range(g.num):
+        n = g.get_non_neighbor_nodes(j)
+        if len(n) < 2:
+            continue
+        while(n[0] < j):
+            tmp = n.pop(0)
+            n.append(tmp)
+        edge = [j, n[message[i]]]
+        edge.sort()
+        g.edge.append(edge)
+        i += 1
+        if len(message) < i + 1:
+            g.edge.sort()
+            return gc(g)
+    sys.exit()
 
 
 def qps(graph, message):
@@ -121,35 +117,35 @@ def qps(graph, message):
     """
     g = gc(Graph(graph.num, graph.edge))
     color = max(g.vertex) + 1
-    flags = []
+    u = []
     for i in range(g.num):
-        flags.append(False)
-    message_count = 0
-    for i in range(len(g.vertex) - 2):
-        if flags[i]:
+        u.append(False)
+    i = 0
+    for j in range(g.num - 2):
+        n = g.get_non_neighbor_nodes(j)
+        if len(n) < 2:
             continue
-        node_count = 0
-        nodes = []
-        for j in range(i + 1, len(g.vertex)):
-            if g.vertex[i] == g.vertex[j] and flags[j] is False:
-                nodes.append(j)
-                node_count += 1
-                if node_count == 2:
-                    break
-        if(node_count == 2):
-            g.vertex[nodes[message[message_count]]] = color
-            g.edge.append([i, nodes[message[message_count]]])
-            color += 1
-            message_count += 1
-            if message_count == len(message):
-                break
-            flags[i] = True
-            flags[nodes[0]] = True
-            flags[nodes[1]] = True
-    if message_count != len(message):
-        sys.exit()
-    g.edge.sort()
-    return g
+        k = 0
+        while(len(n) > k):
+            if g.vertex[n[k]] != g.vertex[j] or u[n[k]] != False or n[k] < j:
+                n.pop(k)
+            else:
+                k += 1
+        if len(n) < 2:
+            continue
+        g.vertex[n[message[i]]] = color
+        edge = [j, n[message[i]]]
+        edge.sort()
+        g.edge.append(edge)
+        color += 1
+        i += 1
+        if len(message) < i + 1:
+            g.edge.sort()
+            return g
+        u[j] = True
+        u[n[0]] = True
+        u[n[1]] = True
+    sys.exit()
 
 
 def cc(graph, message):
@@ -163,7 +159,7 @@ def cc(graph, message):
         message.append(0)
     for i in range(g.num):
         if message[i] == 1:
-            nodes = g.get_adjacent_nodes(i)
+            nodes = g.get_neighbor_nodes(i)
             for j in range(1, max(g.vertex) + 2):
                 if j == g.vertex[i]:
                     continue
@@ -189,7 +185,7 @@ def icc(graph, message):
         message.append(0)
     for i in range(g.num):
         if message[i] == 1:
-            nodes = g.get_adjacent_nodes(i)
+            nodes = g.get_neighbor_nodes(i)
             for j in range(1, max(g.vertex) + 2):
                 if j == g.vertex[i]:
                     continue
@@ -248,5 +244,5 @@ if __name__ == '__main__':
     m = [1, 0, 1, 0, 1, 1, 0, 1, 0]
     n = 10
     g = Graph(n, e)
-    cc = cp(g, m)
-    print(cc.vertex)
+    cp = cp(g, m)
+    print(cp.vertex)
