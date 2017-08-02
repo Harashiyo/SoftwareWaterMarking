@@ -28,11 +28,12 @@ class Graph:
             if self.edge[i][1] == num:
                 nodes.append(self.edge[i][0])
             i += 1
-        if i < self.num:
+        n = len(self.edge)
+        if i < n:
             while(self.edge[i][0] == num):
                 nodes.append(self.edge[i][1])
                 i += 1
-                if i == self.num:
+                if i == n:
                     break
         return nodes
 
@@ -140,8 +141,8 @@ def cc(graph, message):
                 if j == g.vertex[i]:
                     continue
                 flag = True
-                for k in range(len(nodes)):
-                    if j == g.vertex[nodes[k]]:
+                for k in nodes:
+                    if j == g.vertex[k]:
                         flag = False
                         break
                 if flag:
@@ -153,29 +154,26 @@ def cc(graph, message):
 def icc(graph, message):
     u"""ICC Algorithm.
     """
-    if len(graph.vertex) < len(message):
+    m = len(message)
+    if graph.num < m:
         sys.exit()
-    else:
-        for i in range(len(message), len(graph.vertex)):
-            message.append(0)
     g = gc(Graph(graph.num, graph.edge))
-    for i in range(len(message)):
+    for i in range(m, g.num):
+        message.append(0)
+    for i in range(g.num):
         if message[i] == 1:
-            color_min = max(g.vertex) + 1
-            colors = [g.vertex[i]]
-            for j in range(len(g.vertex)):
-                edge = [i, j]
-                edge.sort()
-                if g.vertex[j] < color_min and edge not in g.edge and g.vertex[j] not in colors:
-                    color_min = g.vertex[j]
-                else:
-                    colors.append(g.vertex[j])
-            for j in range(i + 1, len(g.vertex)):
-                edge = [i, j]
-                edge.sort()
-                if message[j] == 1 and g.vertex[j] < color_min and edge in g.edge:
-                    color_min = g.vertex[j]
-            g.vertex[i] = color_min
+            nodes = g.get_adjacent_nodes(i)
+            for j in range(1, max(g.vertex) + 2):
+                if j == g.vertex[i]:
+                    continue
+                flag = True
+                for k in nodes:
+                    if j == g.vertex[k] and (k < i or message[k] == 0):
+                        flag = False
+                        break
+                if flag:
+                    g.vertex[i] = j
+                    break
     return g
 
 
@@ -223,5 +221,5 @@ if __name__ == '__main__':
     m = [1, 0, 1, 0, 1, 1, 0, 1, 0, 0]
     n = 10
     g = Graph(n, e)
-    cc = cc(g, m)
+    cc = icc(g, m)
     print(cc.vertex)
