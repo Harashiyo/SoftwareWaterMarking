@@ -15,6 +15,8 @@ class Graph:
         for i in range(self.num):
             self.vertex[i] = i + 1
         self.edge = edge[:]
+        for i in range(len(edge)):
+            self.edge[i].sort()
         self.edge.sort()
 
     def set_zero_vertex(self):
@@ -24,11 +26,13 @@ class Graph:
     def get_adjacent_nodes(self, num):
         nodes = []
         i = 0
+        n = len(self.edge)
         while(self.edge[i][0] < num):
             if self.edge[i][1] == num:
                 nodes.append(self.edge[i][0])
             i += 1
-        n = len(self.edge)
+            if i == n:
+                break
         if i < n:
             while(self.edge[i][0] == num):
                 nodes.append(self.edge[i][1])
@@ -36,6 +40,35 @@ class Graph:
                 if i == n:
                     break
         return nodes
+
+    def get_not_adjacent_nodes(self, num):
+        nodes = []
+        n = self.get_adjacent_nodes(num)
+        if len(n) == 0:
+            for i in range(self.num):
+                if i == num:
+                    nodes.append(i)
+        else:
+            j = 0
+            for i in range(self.num):
+                if i == num:
+                    continue
+                if j != len(n):
+                    if i != n[j]:
+                        nodes.append(i)
+                    else:
+                        j += 1
+                else:
+                    nodes.append(i)
+        return nodes
+
+    def get_adjacent_colors(self, num):
+        colors = []
+        nodes = self.get_adjacent_nodes(num)
+        for i in nodes:
+            if self.vertex[i] not in colors:
+                colors.append(self.vertex[i])
+        return colors
 
 
 def gc(graph):
@@ -47,20 +80,14 @@ def gc(graph):
     for i in range(g.num):
         if g.vertex[i] == 0:
             g.vertex[i] = color
-            for j in range(i + 1, g.num):
-                if g.vertex[j] == 0 and check_color(g, color, j):
-                    g.vertex[j] = color
+            nodes = g.get_not_adjacent_nodes(i)
+            for j in nodes:
+                if j > i:
+                    colors = g.get_adjacent_colors(j)
+                    if color not in colors and g.vertex[j] == 0:
+                        g.vertex[j] = color
             color += 1
     return g
-
-
-def check_color(graph, color, num):
-    u"""Determine whether vertices can be colored.
-    """
-    for i in range(num):
-        if graph.vertex[i] == color and [i, num] in graph.edge:
-            return False
-    return True
 
 
 def qp(graph, message):
