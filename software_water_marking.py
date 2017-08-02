@@ -186,7 +186,7 @@ def cp(graph, message):
         M += message[i] * 2 ** i
     g = gc(Graph(graph.num, graph.edge))
     color = max(g.vertex)
-    if math.floor(math.log2(math.factorial(color))) < len(message):
+    if math.floor(math.log2(math.factorial(color))) < m:
         sys.exit()
     r = []
     for i in range(color):
@@ -206,7 +206,7 @@ def cp(graph, message):
                     break
                 else:
                     count += 1
-    for i in range(len(g.vertex)):
+    for i in range(g.num):
         g.vertex[i] = p[g.vertex[i] - 1]
     return g
 
@@ -218,8 +218,8 @@ if __name__ == '__main__':
          [3, 5], [3, 6], [3, 7], [3, 8], [3, 9],
          [4, 5], [5, 6], [5, 7], [5, 8], [5, 9],
          [6, 7], [6, 8], [6, 9], [7, 8], [7, 9]]
-    m = [1, 0, 1, 0, 1, 1, 0, 1, 0, 0]
+    m = [1, 0, 1, 0, 1, 1, 0, 1, 0]
     n = 10
     g = Graph(n, e)
-    cc = icc(g, m)
+    cc = cp(g, m)
     print(cc.vertex)
