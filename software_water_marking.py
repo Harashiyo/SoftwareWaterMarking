@@ -3,6 +3,7 @@ u"""Software Water Marking.
 
 """
 import sys
+import math
 
 
 class Graph:
@@ -109,7 +110,7 @@ def qps(graph, message):
 
 
 def cc(graph, message):
-    u"""QPS Algorithm.
+    u"""CC Algorithm.
     """
     if len(graph.vertex) < len(message):
         sys.exit()
@@ -130,7 +131,7 @@ def cc(graph, message):
 
 
 def improved_cc(graph, message):
-    u"""QPS Algorithm.
+    u"""ICC Algorithm.
     """
     if len(graph.vertex) < len(message):
         sys.exit()
@@ -158,22 +159,45 @@ def improved_cc(graph, message):
     return g
 
 
-def check_color_extend(graph, color, num, N):
-    u"""Determine whether vertices can be colored.
+def cp(graph, message):
+    u"""CP Algorithm.
     """
-    for i in range(N):
-        edge = [i, num]
-        edge.sort()
-        if graph.vertex[i] == color and edge in graph.edge:
-            return False
-    return True
+    m = len(message)
+    M = 0
+    for i in range(m):
+        M += message[i] * 2 ** i
+    g = gc(Graph(graph.num, graph.edge))
+    color = max(g.vertex)
+    if math.floor(math.log2(math.factorial(color))) < len(message):
+        sys.exit()
+    r = []
+    for i in range(color):
+        r.append(M // math.factorial((color - i - 1)))
+        M %= math.factorial((color - i - 1))
+    u = []
+    for i in range(color):
+        u.append(False)
+    p = []
+    for i in range(color):
+        count = 0
+        for j in range(color):
+            if u[j] != True:
+                if count == r[i]:
+                    u[j] = True
+                    p.append(j + 1)
+                    break
+                else:
+                    count += 1
+    for i in range(len(g.vertex)):
+        g.vertex[i] = p[g.vertex[i] - 1]
+    return g
 
 
 if __name__ == '__main__':
-    e = [[0, 2], [0, 3], [1, 2], [1, 4], [3, 4]]
-    m = [1, 0, 1, 1, 0]
-    n = 5
+    e = [[0, 2], [0, 3], [0, 4], [1, 2], [1, 5], [2, 3], [2, 4], [3, 4], [4, 5]]
+    m = [1, 1, 0, 1]
+    n = 6
     g = Graph(n, e)
-    cc = improved_cc(g, m)
+    cc = cp(g, m)
     print(cc.vertex)
     print(cc.edge)
